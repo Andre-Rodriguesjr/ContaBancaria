@@ -8,8 +8,13 @@ public class ContaBancaria implements ControladorConta {
     private double saldo;
     private boolean contaAtiva;
 
+    // Construtor vazio (opcional, dependendo de como você instancia)
+    public ContaBancaria() {
+        this.saldo = 0.0;
+        this.contaAtiva = false;
+    }
 
-
+    // Getters e Setters Necessários
     public int getNumeroConta() {
         return numeroConta;
     }
@@ -30,35 +35,27 @@ public class ContaBancaria implements ControladorConta {
         return saldo;
     }
 
-    public void setSaldo(double saldo) {
-        this.saldo = saldo;
-    }
-
     public boolean isContaAtiva() {
         return contaAtiva;
     }
 
-    public void setContaAtiva(boolean contaAtiva) {
-        this.contaAtiva = contaAtiva;
-    }
-
+    // Métodos da Interface
     @Override
     public void abrirConta(int numeroConta, String titular) {
         this.setNumeroConta(numeroConta);
         this.setTitular(titular);
-        System.out.println("Conta aberta com sucesso. Número: " + numeroConta + ", Titular: " + titular);
+        this.saldo = 0.0; // Garantimos que começa com zero aqui
+        System.out.println("Conta criada! Número: " + numeroConta + " | Titular: " + titular);
     }
 
     @Override
     public boolean ativarConta() {
-
-        this.saldo = 0;
-        if (numeroConta < 0 || titular == null || titular.trim().isEmpty()) {
-            System.out.println("Erro: Dados incompletos. Informe número E titular para ativar.");
+        if (numeroConta <= 0 || titular == null || titular.trim().isEmpty()) {
+            System.err.println("Erro: Não é possível ativar uma conta sem número ou titular.");
             return false;
         } else {
             this.contaAtiva = true;
-            System.out.println("Conta ativada com sucesso!!");
+            System.out.println("Conta ativada com sucesso!");
             return true;
         }
     }
@@ -66,53 +63,61 @@ public class ContaBancaria implements ControladorConta {
     @Override
     public void desativarConta() {
         if (!contaAtiva) {
-            System.out.println("A conta já está desativada");
+            System.out.println("A conta já está desativada.");
         } else if (saldo > 0) {
-            System.out.println("Saque o dinheiro antes de fechar a conta");
+            System.out.println("Erro: Retire o saldo de R$" + saldo + " antes de desativar.");
         } else if (saldo < 0) {
-            System.out.println("A conta está endividada, pague a dívida antes de fechar.");
+            System.out.println("Erro: Regularize a dívida de R$" + saldo + " antes de desativar.");
         } else {
-            contaAtiva = false;
-            System.out.println("Conta fechada com sucesso");
+            this.contaAtiva = false;
+            System.out.println("Conta desativada com sucesso.");
         }
     }
 
     @Override
     public double depositar(double deposito) {
-        
-        if (contaAtiva == false) {
-            System.out.println("Não é possivel depositar em conta desativada");
-        } else if (deposito > 10000) {
-            System.out.println("Valor muito alto, deposite um valor menor!!");
-        } else {
-            this.saldo += deposito;
-            System.out.println("Deposito no valor de: " + deposito + " realizado com sucesso.");
-
+        if (!contaAtiva) {
+            throw new IllegalStateException("Impossível depositar: Conta está desativada.");
         }
+        if (deposito <= 0) {
+            throw new IllegalArgumentException("O valor do depósito deve ser positivo.");
+        }
+        if (deposito > 10000) {
+            System.out.println("Alerta: Depósitos acima de R$10.000 precisam de análise, mas foram processados.");
+        }
+
+        this.saldo += deposito;
+        System.out.println("Depósito de R$" + deposito + " realizado. Novo saldo: R$" + this.saldo);
         return this.saldo;
     }
 
     @Override
     public double sacar(double valorSaque) {
-
-        if (!contaAtiva){
-            System.out.println("Não é possivel sacar em uma conta desativada");
-        } else if (valorSaque > saldo){
-            System.out.println("Não é possivel sacar um valor maior que o saldo!!");
-        } else if (valorSaque<=0) {
-            System.out.println("Não é possivel sacar 0 reais ou valores negativos");
-        }else {
-            this.saldo -= valorSaque;
+        if (!contaAtiva) {
+            throw new IllegalStateException("Impossível sacar: Conta está desativada.");
         }
+        if (valorSaque <= 0) {
+            throw new IllegalArgumentException("O valor do saque deve ser maior que zero.");
+        }
+        if (valorSaque > saldo) {
+            // Em vez de só imprimir, lançamos um erro que para o programa ou avisa a Main
+            throw new RuntimeException("Saldo insuficiente! Tentativa de saque: " + valorSaque + " | Saldo: " + saldo);
+        }
+
+        this.saldo -= valorSaque;
+        System.out.println("Saque de R$" + valorSaque + " realizado com sucesso.");
         return this.saldo;
     }
 
     @Override
     public void mostrarDados() {
-        System.out.println("========DADOS DA CONTA ==========");
-        System.out.println("Numero da conta: " + numeroConta);
-        System.out.println("Nome do titular: " + titular);
-        System.out.println("Saldo da conta: " + saldo);
-        System.out.println("A conta está ativa?: " + contaAtiva);
+        System.out.println("\n===============================");
+        System.out.println("       DADOS DA CONTA          ");
+        System.out.println("===============================");
+        System.out.println("Titular: " + titular);
+        System.out.println("Número:  " + numeroConta);
+        System.out.println("Saldo:   R$" + saldo);
+        System.out.println("Status:  " + (contaAtiva ? "ATIVA" : "INATIVA"));
+        System.out.println("===============================\n");
     }
 }
