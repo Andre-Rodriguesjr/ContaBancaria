@@ -8,13 +8,13 @@ public class ContaBancaria implements ControladorConta {
     private double saldo;
     private boolean contaAtiva;
 
-    // Construtor vazio (opcional, dependendo de como você instancia)
+
     public ContaBancaria() {
         this.saldo = 0.0;
         this.contaAtiva = false;
     }
 
-    // Getters e Setters Necessários
+
     public int getNumeroConta() {
         return numeroConta;
     }
@@ -100,7 +100,7 @@ public class ContaBancaria implements ControladorConta {
             throw new IllegalArgumentException("O valor do saque deve ser maior que zero.");
         }
         if (valorSaque > saldo) {
-            // Em vez de só imprimir, lançamos um erro que para o programa ou avisa a Main
+
             throw new RuntimeException("Saldo insuficiente! Tentativa de saque: " + valorSaque + " | Saldo: " + saldo);
         }
 
